@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Courthouse columns">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1">
+      <stop offset="0" stop-color="#203042"/>
+      <stop offset="1" stop-color="#0f3d35"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect y="620" width="1600" height="280" fill="#182230"/>
+  <path d="M280 250h1040l-520-170z" fill="#d2bf91" opacity=".86"/>
+  <rect x="340" y="300" width="920" height="48" fill="#e7d8b7" opacity=".86"/>
+  <g fill="#f0e4c5" opacity=".78">
+    <rect x="400" y="350" width="74" height="300"/>
+    <rect x="560" y="350" width="74" height="300"/>
+    <rect x="720" y="350" width="74" height="300"/>
+    <rect x="880" y="350" width="74" height="300"/>
+    <rect x="1040" y="350" width="74" height="300"/>
+  </g>
+  <rect x="320" y="650" width="960" height="54" fill="#d2bf91" opacity=".82"/>
+  <rect x="250" y="704" width="1100" height="72" fill="#a98952" opacity=".76"/>
+</svg>

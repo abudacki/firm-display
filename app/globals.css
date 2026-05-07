@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: ui-sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #101826;
+  color: #f7f4ed;
+}
+
+body {
+  margin: 0;
+}
+
+.display-bg {
+  background:
+    linear-gradient(90deg, rgba(16, 24, 38, 0.88), rgba(16, 24, 38, 0.36)),
+    var(--display-image, linear-gradient(135deg, #101826, #0f3d35));
+  background-size: cover;
+  background-position: center;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .slow-pan {
+    animation: slow-pan 28s ease-in-out infinite alternate;
+  }
+
+  @keyframes slow-pan {
+    from {
+      background-position: center left;
+    }
+
+    to {
+      background-position: center right;
+    }
+  }
+}
