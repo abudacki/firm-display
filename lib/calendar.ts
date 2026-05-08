@@ -67,11 +67,9 @@ export async function getCalendarEvents(calendarIds: string | string[], privacyS
 
   try {
     const graphResults = await Promise.all(parsedCalendarIds.map((calendarId) => getGraphCalendarView(calendarId, start, end, privacySafe)));
-    if (graphResults.every(Boolean)) {
-      return graphResults.flatMap((events) => events ?? []).sort((a, b) => a.start.localeCompare(b.start));
-    }
+    return graphResults.flatMap((events) => events).sort((a, b) => a.start.localeCompare(b.start));
   } catch (error) {
-    console.error(error);
+    return [];
   }
 
   if (graphConfigured) {

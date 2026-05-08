@@ -39,17 +39,19 @@ async function getAccessToken() {
   });
 
   if (!response.ok) {
-    throw new Error(`Graph token request failed: ${response.status}`);
+    return null;
   }
 
   const json = (await response.json()) as { access_token: string };
   return json.access_token;
 }
 
-export async function getGraphCalendarView(calendarId: string, start: Date, end: Date, privacySafe: boolean): Promise<CalendarEvent[] | null> {
-  if (!hasGraphConfig()) return null;
+export async function getGraphCalendarView(calendarId: string, start: Date, end: Date, privacySafe: boolean): Promise<CalendarEvent[]> {
+  if (!hasGraphConfig()) return [];
 
   const token = await getAccessToken();
+  if (!token) return [];
+
   const url = new URL(`${graphBase}/users/${encodeURIComponent(calendarId)}/calendarView`);
   url.searchParams.set("startDateTime", start.toISOString());
   url.searchParams.set("endDateTime", end.toISOString());
@@ -65,7 +67,7 @@ export async function getGraphCalendarView(calendarId: string, start: Date, end:
   });
 
   if (!response.ok) {
-    throw new Error(`Graph calendarView failed for ${calendarId}: ${response.status}`);
+    return [];
   }
 
   const json = (await response.json()) as { value: GraphEvent[] };
