@@ -12,7 +12,7 @@ type GraphEvent = {
 
 const graphBase = "https://graph.microsoft.com/v1.0";
 
-function hasGraphConfig() {
+export function hasGraphConfig() {
   return Boolean(process.env.MICROSOFT_TENANT_ID && process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET);
 }
 

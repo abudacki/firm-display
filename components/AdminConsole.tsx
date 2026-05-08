@@ -137,11 +137,14 @@ export function AdminConsole({
                       next[index] = { ...profile, name: event.target.value };
                       setProfiles(next);
                     }} />
-                    <input className="rounded-md border border-ink/20 px-3 py-2" value={profile.calendarIds.join(", ")} onChange={(event) => {
-                      const next = [...profiles];
-                      next[index] = { ...profile, calendarIds: event.target.value.split(",").map((item) => item.trim()).filter(Boolean) };
-                      setProfiles(next);
-                    }} />
+                    <label className="grid gap-1">
+                      <input className="rounded-md border border-ink/20 px-3 py-2" value={profile.calendarIds} onChange={(event) => {
+                        const next = [...profiles];
+                        next[index] = { ...profile, calendarIds: event.target.value };
+                        setProfiles(next);
+                      }} />
+                      <span className="text-sm text-ink/62">Use comma-separated Microsoft 365 mailbox addresses.</span>
+                    </label>
                     <input className="rounded-md border border-ink/20 px-3 py-2" type="number" min="10" value={profile.rotationSeconds} onChange={(event) => {
                       const next = [...profiles];
                       next[index] = { ...profile, rotationSeconds: Number(event.target.value) };
@@ -153,7 +156,7 @@ export function AdminConsole({
                       setProfiles(next);
                     }} /> Privacy-safe</label>
                   </div>
-                  <button className="mt-3 flex w-fit items-center gap-2 rounded-md bg-cypress px-4 py-2 font-semibold text-white" onClick={() => post("/api/admin/display-profiles", profile)}>
+                  <button className="mt-3 flex w-fit items-center gap-2 rounded-md bg-cypress px-4 py-2 font-semibold text-white" type="button" onClick={() => post("/api/admin/display-profiles", { ...profile, calendarIds: profile.calendarIds.trim() })}>
                     <Save className="h-4 w-4" /> Save profile
                   </button>
                 </div>

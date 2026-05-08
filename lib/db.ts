@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
+import { hasGraphConfig } from "./graph/client";
 import type { Announcement, DisplayProfile, DisplaySettings, Quote } from "./types";
 
 const dbPath = path.resolve(process.cwd(), process.env.DATABASE_PATH ?? "data/kiosk.sqlite");
@@ -46,13 +47,40 @@ function migrate(database: Database.Database) {
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       mode TEXT NOT NULL,
-      calendar_ids TEXT NOT NULL DEFAULT '[]',
+      calendar_ids TEXT NOT NULL DEFAULT '',
       office_ids TEXT NOT NULL DEFAULT '[]',
       rotation_seconds INTEGER NOT NULL DEFAULT 45,
       privacy_safe INTEGER NOT NULL DEFAULT 1,
       room_mailbox TEXT
     );
   `);
+}
+
+const mockCalendarIds = ["alex.rivera", "jordan.lee", "morgan.patel", "morgan.pa"];
+
+function onlyMockCalendarIds(values: string[]) {
+  return values.length > 0 && values.every((item) => mockCalendarIds.includes(item));
+}
+
+function normalizeCalendarIds(value: string) {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (Array.isArray(parsed)) {
+      const parsedValues = parsed.filter((item): item is string => typeof item === "string");
+      if (hasGraphConfig() && onlyMockCalendarIds(parsedValues)) {
+        return "";
+      }
+      return parsedValues.join(",");
+    }
+  } catch {
+    // Existing databases may contain either raw comma-separated text or legacy JSON arrays.
+  }
+  const trimmed = value.trim();
+  const values = trimmed.split(",").map((item) => item.trim()).filter(Boolean);
+  if (hasGraphConfig() && onlyMockCalendarIds(values)) {
+    return "";
+  }
+  return trimmed;
 }
 
 export function seedDatabase() {
@@ -87,13 +115,14 @@ export function seedDatabase() {
 
   const profileCount = database.prepare("SELECT COUNT(*) as count FROM display_profiles").get() as { count: number };
   if (profileCount.count === 0) {
+    const defaultCalendarIds = hasGraphConfig() ? "" : ["alex.rivera", "jordan.lee", "morgan.patel"].join(",");
     const insert = database.prepare(
       "INSERT INTO display_profiles (id, name, mode, calendar_ids, office_ids, rotation_seconds, privacy_safe, room_mailbox) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     );
-    insert.run("morning", "Morning Meeting", "morning", JSON.stringify(["alex.rivera", "jordan.lee", "morgan.patel"]), JSON.stringify(["main", "north"]), 45, 1, null);
-    insert.run("attorneys", "Attorney Calendar", "attorneys", JSON.stringify(["alex.rivera", "jordan.lee", "morgan.patel"]), JSON.stringify(["main"]), 35, 1, null);
-    insert.run("main-conference", "Main Conference Room", "room", JSON.stringify(["main-conference-room"]), JSON.stringify(["main"]), 30, 1, "main-conference-room@example.com");
-    insert.run("announcements", "Announcements", "announcements", JSON.stringify([]), JSON.stringify(["main", "north"]), 25, 1, null);
+    insert.run("morning", "Morning Meeting", "morning", defaultCalendarIds, JSON.stringify(["main", "north"]), 45, 1, null);
+    insert.run("attorneys", "Attorney Calendar", "attorneys", defaultCalendarIds, JSON.stringify(["main"]), 35, 1, null);
+    insert.run("main-conference", "Main Conference Room", "room", hasGraphConfig() ? "" : "main-conference-room", JSON.stringify(["main"]), 30, 1, "main-conference-room@example.com");
+    insert.run("announcements", "Announcements", "announcements", "", JSON.stringify(["main", "north"]), 25, 1, null);
   }
 }
 
@@ -158,7 +187,7 @@ export function getProfiles(): DisplayProfile[] {
     .all() as Array<Omit<DisplayProfile, "calendarIds" | "officeIds"> & { calendarIds: string; officeIds: string }>;
   return rows.map((row) => ({
     ...row,
-    calendarIds: JSON.parse(row.calendarIds),
+    calendarIds: normalizeCalendarIds(row.calendarIds),
     officeIds: JSON.parse(row.officeIds)
   }));
 }
@@ -172,5 +201,5 @@ export function upsertProfile(profile: DisplayProfile) {
     .prepare(
       "INSERT INTO display_profiles (id, name, mode, calendar_ids, office_ids, rotation_seconds, privacy_safe, room_mailbox) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name = excluded.name, mode = excluded.mode, calendar_ids = excluded.calendar_ids, office_ids = excluded.office_ids, rotation_seconds = excluded.rotation_seconds, privacy_safe = excluded.privacy_safe, room_mailbox = excluded.room_mailbox"
     )
-    .run(profile.id, profile.name, profile.mode, JSON.stringify(profile.calendarIds), JSON.stringify(profile.officeIds), profile.rotationSeconds, profile.privacySafe, profile.roomMailbox || null);
+    .run(profile.id, profile.name, profile.mode, profile.calendarIds.trim(), JSON.stringify(profile.officeIds), profile.rotationSeconds, profile.privacySafe, profile.roomMailbox || null);
 }

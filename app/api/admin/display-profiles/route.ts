@@ -6,7 +6,7 @@ const schema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   mode: z.enum(["morning", "attorneys", "room", "announcements"]),
-  calendarIds: z.array(z.string()),
+  calendarIds: z.string().transform((value) => value.trim()),
   officeIds: z.array(z.string()),
   rotationSeconds: z.number().int().min(10),
   privacySafe: z.number().int().min(0).max(1),

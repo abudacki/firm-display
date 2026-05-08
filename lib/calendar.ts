@@ -1,4 +1,4 @@
-import { getGraphCalendarView } from "./graph/client";
+import { getGraphCalendarView, hasGraphConfig } from "./graph/client";
 import type { CalendarEvent } from "./types";
 
 const names: Record<string, string> = {
@@ -7,6 +7,16 @@ const names: Record<string, string> = {
   "morgan.patel": "Morgan Patel",
   "main-conference-room": "Main Conference"
 };
+
+const defaultMockCalendarIds = ["alex.rivera", "jordan.lee", "morgan.patel"];
+
+function parseCalendarIds(calendarIds: string | string[]) {
+  const value = Array.isArray(calendarIds) ? calendarIds.join(",") : calendarIds;
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
 
 function atToday(hours: number, minutes = 0) {
   const date = new Date();
@@ -44,13 +54,19 @@ function mockEvents(calendarIds: string[], privacySafe: boolean): CalendarEvent[
   );
 }
 
-export async function getCalendarEvents(calendarIds: string[], privacySafe: boolean, hoursAhead = 16) {
+export async function getCalendarEvents(calendarIds: string | string[], privacySafe: boolean, hoursAhead = 16) {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
   const end = new Date(start.getTime() + hoursAhead * 60 * 60_000);
+  const graphConfigured = hasGraphConfig();
+  const parsedCalendarIds = parseCalendarIds(calendarIds);
+
+  if (graphConfigured && parsedCalendarIds.length === 0) {
+    return [];
+  }
 
   try {
-    const graphResults = await Promise.all(calendarIds.map((calendarId) => getGraphCalendarView(calendarId, start, end, privacySafe)));
+    const graphResults = await Promise.all(parsedCalendarIds.map((calendarId) => getGraphCalendarView(calendarId, start, end, privacySafe)));
     if (graphResults.every(Boolean)) {
       return graphResults.flatMap((events) => events ?? []).sort((a, b) => a.start.localeCompare(b.start));
     }
@@ -58,7 +74,11 @@ export async function getCalendarEvents(calendarIds: string[], privacySafe: bool
     console.error(error);
   }
 
-  return mockEvents(calendarIds, privacySafe).sort((a, b) => a.start.localeCompare(b.start));
+  if (graphConfigured) {
+    return [];
+  }
+
+  return mockEvents(parsedCalendarIds.length ? parsedCalendarIds : defaultMockCalendarIds, privacySafe).sort((a, b) => a.start.localeCompare(b.start));
 }
 
 export function getCurrentAndNext(events: CalendarEvent[]) {

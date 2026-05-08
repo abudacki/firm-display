@@ -42,7 +42,7 @@ export type DisplayProfile = {
   id: string;
   name: string;
   mode: "morning" | "attorneys" | "room" | "announcements";
-  calendarIds: string[];
+  calendarIds: string;
   officeIds: string[];
   rotationSeconds: number;
   privacySafe: number;
