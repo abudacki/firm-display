@@ -202,7 +202,21 @@ For least privilege:
 
 ## Weather Provider
 
-`lib/weather/provider.ts` currently returns local mock office weather. Replace this module with Open-Meteo, National Weather Service, or another approved provider. Keep the `WeatherLocation` return shape stable so display pages do not need to change.
+`lib/weather/provider.ts` uses mock office weather unless `WEATHER_PROVIDER="openmeteo"` is set. For one local weather card:
+
+```bash
+WEATHER_PROVIDER="openmeteo"
+WEATHER_LOCATION="Sewickley, PA 15143"
+WEATHER_API_BASE_URL="https://api.open-meteo.com/v1/forecast"
+```
+
+For multiple weather cards:
+
+```bash
+WEATHER_LOCATIONS="Main Office|Sewickley, PA 15143;North Office|White Plains, NY"
+```
+
+The provider falls back to mock weather if the live request fails.
 
 ## Maintenance Notes
 
