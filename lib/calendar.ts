@@ -10,6 +10,30 @@ const names: Record<string, string> = {
 
 const defaultMockCalendarIds = ["alex.rivera", "jordan.lee", "morgan.patel"];
 
+function configuredCalendarNames() {
+  return Object.fromEntries(
+    (process.env.CALENDAR_DISPLAY_NAMES ?? "")
+      .split(";")
+      .map((entry) => entry.split("|").map((part) => part.trim()))
+      .filter((entry): entry is [string, string] => Boolean(entry[0] && entry[1]))
+      .map(([calendarId, label]) => [calendarId.toLowerCase(), label])
+  );
+}
+
+function calendarDisplayName(calendarId: string) {
+  const configuredName = configuredCalendarNames()[calendarId.toLowerCase()];
+  if (configuredName) return configuredName;
+
+  if (names[calendarId]) return names[calendarId];
+
+  const localPart = calendarId.split("@")[0] ?? calendarId;
+  return localPart
+    .split(/[._-]/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function parseCalendarIds(calendarIds: string | string[]) {
   const value = Array.isArray(calendarIds) ? calendarIds.join(",") : calendarIds;
   return value
@@ -43,12 +67,13 @@ function mockEvents(calendarIds: string[], privacySafe: boolean): CalendarEvent[
       return {
         id: `${calendarId}-${eventIndex}`,
         calendarId,
-        calendarName: names[calendarId] ?? calendarId,
+        calendarName: calendarDisplayName(calendarId),
         subject: isPrivate ? "Busy" : subject,
         location: isPrivate ? undefined : location,
         start,
         end: addMinutes(start, duration),
-        isPrivate
+        isPrivate,
+        isAllDay: false
       };
     })
   );

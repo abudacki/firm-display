@@ -192,6 +192,12 @@ The calendar provider calls:
 GET /users/{calendar-id}/calendarView?startDateTime=...&endDateTime=...
 ```
 
+To override attorney labels on display cards, set:
+
+```bash
+CALENDAR_DISPLAY_NAMES="paul@tibbottrichardson.com|Smith;djr@tibbottrichardson.com|Richards"
+```
+
 For least privilege:
 
 - Prefer `Calendars.ReadBasic` where the display only needs free/busy-style subject, time, and location metadata.

@@ -6,16 +6,37 @@ function timeRange(event: CalendarEvent) {
   return `${start.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} - ${end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
 }
 
-export function EventList({ events, large = false }: { events: CalendarEvent[]; large?: boolean }) {
+function startTime(event: CalendarEvent) {
+  if (event.isAllDay) return "All day";
+  return new Date(event.start).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+function lastName(name: string) {
+  const localName = name.includes("@") ? name.split("@")[0] ?? name : name;
+  const parts = localName.split(/[ ._-]/).filter(Boolean);
+  return parts.at(-1) ?? localName;
+}
+
+export function EventList({
+  events,
+  large = false,
+  showStartOnly = false,
+  showLastNameOnly = false
+}: {
+  events: CalendarEvent[];
+  large?: boolean;
+  showStartOnly?: boolean;
+  showLastNameOnly?: boolean;
+}) {
   return (
     <div className="space-y-3">
       {events.map((event) => (
-        <article className="grid grid-cols-[10rem_1fr] items-center gap-4 rounded-lg border border-white/14 bg-white/12 p-4 backdrop-blur" key={event.id}>
-          <div className="text-lg font-semibold text-brass">{timeRange(event)}</div>
+        <article className="grid grid-cols-[8rem_1fr] items-center gap-4 rounded-lg border border-white/14 bg-white/12 p-4 backdrop-blur" key={event.id}>
+          <div className="text-lg font-semibold text-brass">{showStartOnly ? startTime(event) : timeRange(event)}</div>
           <div className="min-w-0">
             <div className={large ? "truncate text-3xl font-semibold" : "truncate text-2xl font-semibold"}>{event.subject}</div>
             <div className="mt-1 flex gap-3 text-lg text-white/70">
-              <span>{event.calendarName}</span>
+              <span>{showLastNameOnly ? lastName(event.calendarName) : event.calendarName}</span>
               {event.location ? <span>{event.location}</span> : null}
             </div>
           </div>

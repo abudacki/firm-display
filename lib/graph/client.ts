@@ -4,7 +4,7 @@ type GraphEvent = {
   id: string;
   subject?: string;
   sensitivity?: string;
-  isPrivate?: boolean;
+  isAllDay?: boolean;
   location?: { displayName?: string };
   start: { dateTime: string; timeZone: string };
   end: { dateTime: string; timeZone: string };
@@ -14,6 +14,28 @@ const graphBase = "https://graph.microsoft.com/v1.0";
 
 export function hasGraphConfig() {
   return Boolean(process.env.MICROSOFT_TENANT_ID && process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET);
+}
+
+function configuredCalendarNames() {
+  return Object.fromEntries(
+    (process.env.CALENDAR_DISPLAY_NAMES ?? "")
+      .split(";")
+      .map((entry) => entry.split("|").map((part) => part.trim()))
+      .filter((entry): entry is [string, string] => Boolean(entry[0] && entry[1]))
+      .map(([calendarId, label]) => [calendarId.toLowerCase(), label])
+  );
+}
+
+function calendarDisplayName(calendarId: string) {
+  const configuredName = configuredCalendarNames()[calendarId.toLowerCase()];
+  if (configuredName) return configuredName;
+
+  const localPart = calendarId.split("@")[0] ?? calendarId;
+  return localPart
+    .split(/[._-]/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 async function getAccessToken() {
@@ -56,7 +78,7 @@ export async function getGraphCalendarView(calendarId: string, start: Date, end:
   url.searchParams.set("startDateTime", start.toISOString());
   url.searchParams.set("endDateTime", end.toISOString());
   url.searchParams.set("$orderby", "start/dateTime");
-  url.searchParams.set("$select", "id,subject,sensitivity,isPrivate,location,start,end");
+  url.searchParams.set("$select", "id,subject,sensitivity,isAllDay,location,start,end");
 
   const response = await fetch(url, {
     headers: {
@@ -72,16 +94,17 @@ export async function getGraphCalendarView(calendarId: string, start: Date, end:
 
   const json = (await response.json()) as { value: GraphEvent[] };
   return json.value.map((event) => {
-    const privateEvent = event.isPrivate || event.sensitivity === "private";
+    const privateEvent = event.sensitivity === "private";
     return {
       id: event.id,
       calendarId,
-      calendarName: calendarId.split("@")[0] ?? calendarId,
+      calendarName: calendarDisplayName(calendarId),
       subject: privacySafe && privateEvent ? "Busy" : event.subject || "Busy",
       location: privacySafe && privateEvent ? undefined : event.location?.displayName,
       start: event.start.dateTime,
       end: event.end.dateTime,
-      isPrivate: privateEvent
+      isPrivate: privateEvent,
+      isAllDay: event.isAllDay
     };
   });
 }

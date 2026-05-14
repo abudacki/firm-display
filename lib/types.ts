@@ -17,6 +17,7 @@ export type CalendarEvent = {
   start: string;
   end: string;
   isPrivate?: boolean;
+  isAllDay?: boolean;
 };
 
 export type Quote = {

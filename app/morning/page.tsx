@@ -8,12 +8,20 @@ import { getWeatherLocations } from "@/lib/weather/provider";
 
 export const revalidate = 60;
 
+function todayEvents<T extends { start: string }>(events: T[]) {
+  const today = new Date();
+  return events.filter((event) => {
+    const start = new Date(event.start);
+    return start.getFullYear() === today.getFullYear() && start.getMonth() === today.getMonth() && start.getDate() === today.getDate();
+  });
+}
+
 export default async function MorningPage() {
   const settings = getSettings();
   const profile = getProfile("morning");
   const quote = getActiveQuote();
   const announcements = getAnnouncements();
-  const events = await getCalendarEvents(profile?.calendarIds ?? [], Boolean(profile?.privacySafe ?? 1), 18);
+  const events = todayEvents(await getCalendarEvents(profile?.calendarIds ?? [], Boolean(profile?.privacySafe ?? 1), 24));
   const weather = await getWeatherLocations(profile?.officeIds ?? []);
 
   return (
@@ -29,8 +37,8 @@ export default async function MorningPage() {
         <div className="space-y-5">
           <WeatherCards locations={weather} />
           <div className="rounded-lg border border-white/16 bg-ink/58 p-5 backdrop-blur">
-            <h2 className="mb-4 text-3xl font-semibold">Associate calendars</h2>
-            <EventList events={events.slice(0, 5)} />
+            <h2 className="mb-4 text-3xl font-semibold">Associate Attorney Calendars</h2>
+            <EventList events={events.slice(0, 5)} showStartOnly showLastNameOnly />
           </div>
         </div>
       </div>
