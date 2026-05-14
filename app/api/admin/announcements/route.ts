@@ -12,6 +12,14 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
-  addAnnouncement(schema.parse(await request.json()));
+  const body = schema.parse(await request.json());
+  addAnnouncement({
+    title: body.title,
+    body: body.body,
+    office: body.office || null,
+    urgent: body.urgent,
+    startsAt: body.startsAt || null,
+    endsAt: body.endsAt || null
+  });
   return NextResponse.json({ ok: true });
 }
