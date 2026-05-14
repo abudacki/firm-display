@@ -38,7 +38,7 @@ export default async function MorningPage() {
           <WeatherCards locations={weather} />
           <div className="rounded-lg border border-white/16 bg-ink/58 p-5 backdrop-blur">
             <h2 className="mb-4 text-3xl font-semibold">Associate Attorney Calendars</h2>
-            <EventList events={events.slice(0, 5)} showStartOnly showLastNameOnly />
+            <EventList events={events} showStartOnly showLastNameOnly autoScroll />
           </div>
         </div>
       </div>

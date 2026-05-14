@@ -47,4 +47,22 @@ body {
       background-position: center right;
     }
   }
+
+  .event-scroll-track {
+    animation: event-scroll 48s linear infinite;
+  }
+
+  .event-scroll:hover .event-scroll-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes event-scroll {
+    from {
+      transform: translateY(0);
+    }
+
+    to {
+      transform: translateY(-50%);
+    }
+  }
 }
