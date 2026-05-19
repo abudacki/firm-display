@@ -12,6 +12,7 @@ export type CalendarEvent = {
   id: string;
   calendarId: string;
   calendarName: string;
+  calendarNames?: string[];
   subject: string;
   location?: string;
   start: string;

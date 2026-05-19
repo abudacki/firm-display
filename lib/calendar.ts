@@ -52,6 +52,50 @@ function addMinutes(iso: string, minutes: number) {
   return new Date(new Date(iso).getTime() + minutes * 60_000).toISOString();
 }
 
+function mergeKey(event: CalendarEvent) {
+  return [
+    event.subject.trim().toLowerCase(),
+    event.start,
+    event.end,
+    event.location?.trim().toLowerCase() ?? "",
+    event.isAllDay ? "all-day" : "timed"
+  ].join("|");
+}
+
+function uniqueNames(names: string[]) {
+  return Array.from(new Set(names.filter(Boolean))).sort((a, b) => a.localeCompare(b));
+}
+
+export function normalizeCalendarEvents(events: CalendarEvent[]) {
+  const merged = new Map<string, CalendarEvent>();
+
+  for (const event of events) {
+    const key = mergeKey(event);
+    const names = event.calendarNames ?? [event.calendarName];
+    const existing = merged.get(key);
+
+    if (!existing) {
+      const calendarNames = uniqueNames(names);
+      merged.set(key, {
+        ...event,
+        calendarNames,
+        calendarName: calendarNames.join(", ")
+      });
+      continue;
+    }
+
+    const calendarNames = uniqueNames([...(existing.calendarNames ?? [existing.calendarName]), ...names]);
+    merged.set(key, {
+      ...existing,
+      id: `${existing.id}-${event.id}`,
+      calendarName: calendarNames.join(", "),
+      calendarNames
+    });
+  }
+
+  return Array.from(merged.values()).sort((a, b) => a.start.localeCompare(b.start) || a.subject.localeCompare(b.subject));
+}
+
 function mockEvents(calendarIds: string[], privacySafe: boolean): CalendarEvent[] {
   const templates = [
     ["Client strategy session", 9, 0, 60, "Conference A"],
@@ -68,6 +112,7 @@ function mockEvents(calendarIds: string[], privacySafe: boolean): CalendarEvent[
         id: `${calendarId}-${eventIndex}`,
         calendarId,
         calendarName: calendarDisplayName(calendarId),
+        calendarNames: [calendarDisplayName(calendarId)],
         subject: isPrivate ? "Busy" : subject,
         location: isPrivate ? undefined : location,
         start,
@@ -92,7 +137,7 @@ export async function getCalendarEvents(calendarIds: string | string[], privacyS
 
   try {
     const graphResults = await Promise.all(parsedCalendarIds.map((calendarId) => getGraphCalendarView(calendarId, start, end, privacySafe)));
-    return graphResults.flatMap((events) => events).sort((a, b) => a.start.localeCompare(b.start));
+    return normalizeCalendarEvents(graphResults.flatMap((events) => events));
   } catch (error) {
     return [];
   }
@@ -101,7 +146,7 @@ export async function getCalendarEvents(calendarIds: string | string[], privacyS
     return [];
   }
 
-  return mockEvents(parsedCalendarIds.length ? parsedCalendarIds : defaultMockCalendarIds, privacySafe).sort((a, b) => a.start.localeCompare(b.start));
+  return normalizeCalendarEvents(mockEvents(parsedCalendarIds.length ? parsedCalendarIds : defaultMockCalendarIds, privacySafe));
 }
 
 export function getCurrentAndNext(events: CalendarEvent[]) {

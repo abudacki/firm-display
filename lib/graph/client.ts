@@ -99,6 +99,7 @@ export async function getGraphCalendarView(calendarId: string, start: Date, end:
       id: event.id,
       calendarId,
       calendarName: calendarDisplayName(calendarId),
+      calendarNames: [calendarDisplayName(calendarId)],
       subject: privacySafe && privateEvent ? "Busy" : event.subject || "Busy",
       location: privacySafe && privateEvent ? undefined : event.location?.displayName,
       start: event.start.dateTime,

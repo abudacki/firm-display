@@ -23,6 +23,8 @@ export default async function MorningPage() {
   const announcements = getAnnouncements();
   const events = todayEvents(await getCalendarEvents(profile?.calendarIds ?? [], Boolean(profile?.privacySafe ?? 1), 24));
   const weather = await getWeatherLocations(profile?.officeIds ?? []);
+  const rotationSeconds = profile?.rotationSeconds ?? Number(process.env.DISPLAY_REFRESH_SECONDS ?? 60);
+  const scrollSeconds = Math.max(20, rotationSeconds - 5);
 
   return (
     <DisplayShell settings={settings} backgroundImage={quote.backgroundImage} announcements={announcements} label="Morning Meeting" rotationSeconds={profile?.rotationSeconds}>
@@ -38,7 +40,7 @@ export default async function MorningPage() {
           <WeatherCards locations={weather} />
           <div className="rounded-lg border border-white/16 bg-ink/58 p-5 backdrop-blur">
             <h2 className="mb-4 text-3xl font-semibold">Associate Attorney Calendars</h2>
-            <EventList events={events} showStartOnly showLastNameOnly autoScroll />
+            <EventList events={events} showStartOnly showLastNameOnly autoScroll scrollSeconds={scrollSeconds} />
           </div>
         </div>
       </div>

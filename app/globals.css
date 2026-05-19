@@ -49,7 +49,7 @@ body {
   }
 
   .event-scroll-track {
-    animation: event-scroll 96s linear infinite;
+    animation: event-scroll var(--event-scroll-duration, 96s) linear infinite;
   }
 
   .event-scroll:hover .event-scroll-track {
