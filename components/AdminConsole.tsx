@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ImageUp, Save, Settings, Quote as QuoteIcon, Megaphone, Monitor } from "lucide-react";
+import { ImageUp, Save, Settings, Quote as QuoteIcon, Megaphone, Monitor, Trash2 } from "lucide-react";
 import type { Announcement, DisplayProfile, DisplaySettings, Quote } from "@/lib/types";
 
 const imageSettings: Array<{ key: keyof DisplaySettings; label: string }> = [
@@ -26,6 +26,7 @@ export function AdminConsole({
 }) {
   const [settings, setSettings] = useState(initialSettings);
   const [profiles, setProfiles] = useState(initialProfiles);
+  const [announcements, setAnnouncements] = useState(initialAnnouncements);
   const [saved, setSaved] = useState("");
 
   async function post(url: string, body: unknown) {
@@ -48,6 +49,14 @@ export function AdminConsole({
     setSettings(nextSettings);
     await post("/api/admin/settings", nextSettings);
     setSaved(`Uploaded ${json.path}`);
+  }
+
+  async function deletePostedAnnouncement(id: number) {
+    const response = await fetch("/api/admin/announcements", { method: "DELETE", body: JSON.stringify({ id }), headers: { "Content-Type": "application/json" } });
+    if (!response.ok) throw new Error("Delete failed");
+    setAnnouncements((current) => current.filter((announcement) => announcement.id !== id));
+    setSaved("Deleted");
+    window.setTimeout(() => setSaved(""), 1800);
   }
 
   return (
@@ -142,6 +151,7 @@ export function AdminConsole({
               const form = new FormData(event.currentTarget);
               await post("/api/admin/announcements", { ...Object.fromEntries(form), urgent: form.get("urgent") === "on" });
               event.currentTarget.reset();
+              window.location.reload();
             }}
           >
             <h2 className="flex items-center gap-2 text-2xl font-semibold"><Megaphone className="h-5 w-5" />Announcements</h2>
@@ -154,8 +164,23 @@ export function AdminConsole({
                 <Save className="h-4 w-4" /> Add announcement
               </button>
             </div>
-            <div className="mt-5 max-h-40 overflow-auto text-sm text-ink/70">
-              {initialAnnouncements.map((announcement) => <div key={announcement.id}>{announcement.title}: {announcement.body}</div>)}
+            <div className="mt-5 max-h-52 overflow-auto text-sm text-ink/70">
+              {announcements.map((announcement) => (
+                <div className="flex items-start justify-between gap-3 border-t border-ink/10 py-2 first:border-t-0" key={announcement.id}>
+                  <div>
+                    <div className="font-semibold text-ink">{announcement.title}</div>
+                    <div>{announcement.body}</div>
+                  </div>
+                  <button
+                    aria-label={`Delete ${announcement.title}`}
+                    className="rounded-md border border-berry/30 p-2 text-berry transition hover:bg-berry hover:text-white"
+                    onClick={() => void deletePostedAnnouncement(announcement.id)}
+                    type="button"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
             </div>
           </form>
 

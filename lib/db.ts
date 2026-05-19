@@ -190,6 +190,10 @@ export function addAnnouncement(input: Omit<Announcement, "id" | "active" | "urg
     .run(input.title, input.body, input.office || null, input.urgent ? 1 : 0, input.startsAt || null, input.endsAt || null);
 }
 
+export function deleteAnnouncement(id: number) {
+  getDatabase().prepare("DELETE FROM announcements WHERE id = ?").run(id);
+}
+
 export function getProfiles(): DisplayProfile[] {
   seedDatabase();
   const rows = getDatabase()

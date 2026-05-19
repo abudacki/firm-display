@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { addAnnouncement } from "@/lib/db";
+import { addAnnouncement, deleteAnnouncement } from "@/lib/db";
 
 const schema = z.object({
   title: z.string().min(1),
@@ -21,5 +21,11 @@ export async function POST(request: Request) {
     startsAt: body.startsAt || null,
     endsAt: body.endsAt || null
   });
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(request: Request) {
+  const { id } = z.object({ id: z.number().int().positive() }).parse(await request.json());
+  deleteAnnouncement(id);
   return NextResponse.json({ ok: true });
 }
