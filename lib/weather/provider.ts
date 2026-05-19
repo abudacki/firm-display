@@ -20,9 +20,11 @@ type ForecastResult = {
 };
 
 const offices = [
-  { id: "main", name: "Main Office", locality: "New York, NY", tempF: 66, condition: "Clear", highF: 72, lowF: 58 },
-  { id: "north", name: "North Office", locality: "White Plains, NY", tempF: 63, condition: "Partly cloudy", highF: 70, lowF: 55 },
-  { id: "shore", name: "Shore Office", locality: "Red Bank, NJ", tempF: 64, condition: "Light breeze", highF: 69, lowF: 57 }
+  { id: "pittsburgh", name: "Pittsburgh Office", locality: "Pittsburgh, PA", tempF: 66, condition: "Clear", highF: 72, lowF: 58 },
+  { id: "ebensburg", name: "Ebensburg Office", locality: "Ebensburg, PA", tempF: 63, condition: "Partly cloudy", highF: 70, lowF: 55 },
+  { id: "arkansas", name: "Arkansas Office", locality: "Russellville, AR", tempF: 72, condition: "Clear", highF: 78, lowF: 61 },
+  { id: "mexico", name: "Mexico Office", locality: "Tepic, Nayarit", tempF: 76, condition: "Mainly clear", highF: 81, lowF: 58 },
+  { id: "south-africa", name: "South Africa Office", locality: "Krugersdorp, Gauteng", tempF: 68, condition: "Clear", highF: 74, lowF: 52 }
 ];
 
 const weatherCodes: Record<number, string> = {
@@ -66,7 +68,7 @@ function configuredLocations() {
 
   const location = process.env.WEATHER_LOCATION?.trim();
   if (location) {
-    return [{ id: "local", name: "Local Office", query: location }];
+    return [{ id: "local", name: "Pittsburgh Office", query: location }];
   }
 
   return [];

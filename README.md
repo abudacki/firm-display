@@ -212,14 +212,14 @@ For least privilege:
 
 ```bash
 WEATHER_PROVIDER="openmeteo"
-WEATHER_LOCATION="Sewickley, PA 15143"
+WEATHER_LOCATION="Pittsburgh, PA"
 WEATHER_API_BASE_URL="https://api.open-meteo.com/v1/forecast"
 ```
 
 For multiple weather cards:
 
 ```bash
-WEATHER_LOCATIONS="Main Office|Sewickley, PA 15143;North Office|White Plains, NY"
+WEATHER_LOCATIONS="Pittsburgh Office|Pittsburgh, PA;Ebensburg Office|Ebensburg, PA;Arkansas Office|Russellville, AR;Mexico Office|Tepic, Nayarit, Mexico;South Africa Office|Krugersdorp, Gauteng, South Africa"
 ```
 
 The provider falls back to mock weather if the live request fails.

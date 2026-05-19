@@ -9,7 +9,8 @@ export function DisplayShell({
   backgroundImage,
   announcements,
   label,
-  rotationSeconds
+  rotationSeconds,
+  urgentAnnouncementsOnly = false
 }: {
   children: React.ReactNode;
   settings: DisplaySettings;
@@ -17,6 +18,7 @@ export function DisplayShell({
   announcements?: Announcement[];
   label: string;
   rotationSeconds?: number;
+  urgentAnnouncementsOnly?: boolean;
 }) {
   const image = backgroundImage ?? settings.defaultBackgroundImage;
   return (
@@ -28,11 +30,18 @@ export function DisplayShell({
       <AutoRefresh seconds={rotationSeconds ?? Number(process.env.DISPLAY_REFRESH_SECONDS ?? 60)} />
       <div className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col">
         <header className="flex items-center justify-between text-white/78">
-          <div className="text-xl font-semibold">{settings.firmName}</div>
+          <div className="flex min-h-10 items-center">
+            {settings.logoImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img alt={settings.firmName} className="max-h-12 w-auto object-contain" src={settings.logoImage} />
+            ) : (
+              <div className="text-xl font-semibold">{settings.firmName}</div>
+            )}
+          </div>
           <div className="rounded-md border border-white/18 bg-white/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.24em]">{label}</div>
         </header>
         <section className="flex flex-1 flex-col justify-center py-8">{children}</section>
-        {announcements ? <AnnouncementTicker announcements={announcements} /> : null}
+        {announcements ? <AnnouncementTicker announcements={announcements} urgentOnly={urgentAnnouncementsOnly} /> : null}
       </div>
     </main>
   );

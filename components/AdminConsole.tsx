@@ -4,6 +4,15 @@ import { useState } from "react";
 import { ImageUp, Save, Settings, Quote as QuoteIcon, Megaphone, Monitor } from "lucide-react";
 import type { Announcement, DisplayProfile, DisplaySettings, Quote } from "@/lib/types";
 
+const imageSettings: Array<{ key: keyof DisplaySettings; label: string }> = [
+  { key: "logoImage", label: "Firm logo" },
+  { key: "defaultBackgroundImage", label: "Default background" },
+  { key: "morningBackgroundImage", label: "Morning page background" },
+  { key: "attorneysBackgroundImage", label: "Attorney page background" },
+  { key: "roomsBackgroundImage", label: "Conference room background" },
+  { key: "announcementsBackgroundImage", label: "Announcements background" }
+];
+
 export function AdminConsole({
   initialSettings,
   initialQuotes,
@@ -24,6 +33,21 @@ export function AdminConsole({
     if (!response.ok) throw new Error("Save failed");
     setSaved("Saved");
     window.setTimeout(() => setSaved(""), 1800);
+  }
+
+  async function uploadAsset(file: File, settingKey: keyof DisplaySettings) {
+    const form = new FormData();
+    form.append("file", file);
+    const response = await fetch("/api/admin/backgrounds", { method: "POST", body: form });
+    const json = (await response.json()) as { path?: string };
+    if (!json.path) {
+      setSaved("Upload failed");
+      return;
+    }
+    const nextSettings = { ...settings, [settingKey]: json.path };
+    setSettings(nextSettings);
+    await post("/api/admin/settings", nextSettings);
+    setSaved(`Uploaded ${json.path}`);
   }
 
   return (
@@ -59,25 +83,34 @@ export function AdminConsole({
             </div>
           </div>
 
-          <form
+          <div
             className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              const form = new FormData(event.currentTarget);
-              const response = await fetch("/api/admin/backgrounds", { method: "POST", body: form });
-              const json = (await response.json()) as { path?: string };
-              if (json.path) setSettings({ ...settings, defaultBackgroundImage: json.path });
-              setSaved(json.path ? `Uploaded ${json.path}` : "Upload failed");
-            }}
           >
-            <h2 className="flex items-center gap-2 text-2xl font-semibold"><ImageUp className="h-5 w-5" />Background image</h2>
-            <div className="mt-5 grid gap-4">
-              <input className="rounded-md border border-ink/20 px-3 py-2" name="file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" required />
-              <button className="flex w-fit items-center gap-2 rounded-md bg-cypress px-4 py-2 font-semibold text-white">
-                <ImageUp className="h-4 w-4" /> Upload image
-              </button>
+            <h2 className="flex items-center gap-2 text-2xl font-semibold"><ImageUp className="h-5 w-5" />Images and logo</h2>
+            <div className="mt-5 grid gap-3">
+              {imageSettings.map(({ key, label }) => (
+                <label className="grid gap-2 rounded-md border border-ink/10 p-3 font-medium" key={key}>
+                  {label}
+                  <input
+                    className="rounded-md border border-ink/20 px-3 py-2"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void uploadAsset(file, key);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                  <input
+                    className="rounded-md border border-ink/20 px-3 py-2 text-sm"
+                    value={settings[key]}
+                    onChange={(event) => setSettings({ ...settings, [key]: event.target.value })}
+                    placeholder="/uploads/image.svg"
+                  />
+                </label>
+              ))}
             </div>
-          </form>
+          </div>
 
           <form
             className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm"

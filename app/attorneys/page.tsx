@@ -13,7 +13,7 @@ export default async function AttorneysPage() {
   const scrollSeconds = Math.max(20, rotationSeconds - 5);
 
   return (
-    <DisplayShell settings={settings} announcements={getAnnouncements()} label="Attorney Calendar" rotationSeconds={profile?.rotationSeconds}>
+    <DisplayShell settings={settings} backgroundImage={settings.attorneysBackgroundImage || undefined} announcements={getAnnouncements()} label="Attorney Calendar" rotationSeconds={profile?.rotationSeconds}>
       <div className="grid gap-8 lg:grid-cols-[0.45fr_1fr]">
         <div className="flex flex-col justify-center">
           <p className="text-2xl font-semibold uppercase tracking-[0.22em] text-brass">Today</p>

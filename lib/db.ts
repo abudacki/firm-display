@@ -90,6 +90,11 @@ export function seedDatabase() {
     const insert = database.prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
     insert.run("firmName", "Hamilton & Myers LLP");
     insert.run("defaultBackgroundImage", "/backgrounds/courthouse.svg");
+    insert.run("morningBackgroundImage", "");
+    insert.run("attorneysBackgroundImage", "");
+    insert.run("roomsBackgroundImage", "");
+    insert.run("announcementsBackgroundImage", "");
+    insert.run("logoImage", "");
     insert.run("supportMessage", "For room support, contact IT.");
   }
 
@@ -119,10 +124,10 @@ export function seedDatabase() {
     const insert = database.prepare(
       "INSERT INTO display_profiles (id, name, mode, calendar_ids, office_ids, rotation_seconds, privacy_safe, room_mailbox) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     );
-    insert.run("morning", "Morning Meeting", "morning", defaultCalendarIds, JSON.stringify(["main", "north"]), 45, 1, null);
-    insert.run("attorneys", "Attorney Calendar", "attorneys", defaultCalendarIds, JSON.stringify(["main"]), 35, 1, null);
-    insert.run("main-conference", "Main Conference Room", "room", hasGraphConfig() ? "" : "main-conference-room", JSON.stringify(["main"]), 30, 1, "main-conference-room@example.com");
-    insert.run("announcements", "Announcements", "announcements", "", JSON.stringify(["main", "north"]), 25, 1, null);
+    insert.run("morning", "Morning Huddle", "morning", defaultCalendarIds, JSON.stringify(["pittsburgh", "ebensburg", "arkansas", "mexico", "south-africa"]), 45, 1, null);
+    insert.run("attorneys", "Attorney Calendar", "attorneys", defaultCalendarIds, JSON.stringify(["pittsburgh"]), 35, 1, null);
+    insert.run("main-conference", "Main Conference Room", "room", hasGraphConfig() ? "" : "main-conference-room", JSON.stringify(["pittsburgh"]), 30, 1, "main-conference-room@example.com");
+    insert.run("announcements", "Announcements", "announcements", "", JSON.stringify(["pittsburgh", "ebensburg"]), 25, 1, null);
   }
 }
 
@@ -133,6 +138,11 @@ export function getSettings(): DisplaySettings {
   return {
     firmName: values.firmName ?? "Firm Display",
     defaultBackgroundImage: values.defaultBackgroundImage ?? "/backgrounds/courthouse.svg",
+    morningBackgroundImage: values.morningBackgroundImage ?? "",
+    attorneysBackgroundImage: values.attorneysBackgroundImage ?? "",
+    roomsBackgroundImage: values.roomsBackgroundImage ?? "",
+    announcementsBackgroundImage: values.announcementsBackgroundImage ?? "",
+    logoImage: values.logoImage ?? "",
     supportMessage: values.supportMessage ?? "Contact IT for support."
   };
 }

@@ -49,10 +49,18 @@ body {
   }
 
   .event-scroll-track {
-    animation: event-scroll var(--event-scroll-duration, 96s) linear infinite;
+    animation: event-scroll var(--event-scroll-duration, 360s) linear infinite;
+  }
+
+  .announcement-scroll-track {
+    animation: announcement-scroll 42s linear infinite;
   }
 
   .event-scroll:hover .event-scroll-track {
+    animation-play-state: paused;
+  }
+
+  .announcement-scroll:hover .announcement-scroll-track {
     animation-play-state: paused;
   }
 
@@ -63,6 +71,16 @@ body {
 
     to {
       transform: translateY(-50%);
+    }
+  }
+
+  @keyframes announcement-scroll {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
     }
   }
 }

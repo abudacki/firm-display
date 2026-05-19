@@ -54,5 +54,10 @@ export type DisplayProfile = {
 export type DisplaySettings = {
   firmName: string;
   defaultBackgroundImage: string;
+  morningBackgroundImage: string;
+  attorneysBackgroundImage: string;
+  roomsBackgroundImage: string;
+  announcementsBackgroundImage: string;
+  logoImage: string;
   supportMessage: string;
 };

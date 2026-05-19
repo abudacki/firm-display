@@ -16,7 +16,7 @@ export default async function RoomPage({ params }: { params: Promise<{ roomId: s
   const available = !current;
 
   return (
-    <DisplayShell settings={settings} announcements={getAnnouncements()} label={profile?.name ?? "Conference Room"} rotationSeconds={profile?.rotationSeconds}>
+    <DisplayShell settings={settings} backgroundImage={settings.roomsBackgroundImage || undefined} announcements={getAnnouncements()} label={profile?.name ?? "Conference Room"} rotationSeconds={profile?.rotationSeconds}>
       <div className="grid items-center gap-8 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-lg border border-white/16 bg-ink/62 p-8 shadow-display backdrop-blur">
           <div className="flex items-center gap-4">

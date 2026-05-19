@@ -11,7 +11,7 @@ export default function AnnouncementsPage() {
   const profile = getProfile("announcements");
 
   return (
-    <DisplayShell settings={settings} announcements={announcements} label="Announcements" rotationSeconds={profile?.rotationSeconds}>
+    <DisplayShell settings={settings} backgroundImage={settings.announcementsBackgroundImage || undefined} announcements={announcements} label="Announcements" rotationSeconds={profile?.rotationSeconds}>
       <div className="mx-auto w-full max-w-6xl">
         {urgent ? (
           <section className="mb-6 rounded-lg bg-berry p-7 shadow-display">
