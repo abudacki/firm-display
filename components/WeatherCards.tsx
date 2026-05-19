@@ -3,7 +3,7 @@ import type { WeatherLocation } from "@/lib/types";
 
 export function WeatherCards({ locations }: { locations: WeatherLocation[] }) {
   return (
-    <div className="grid grid-cols-2 gap-3 2xl:grid-cols-5">
+    <div className={locations.length === 1 ? "grid grid-cols-1 gap-3" : "grid grid-cols-2 gap-3 2xl:grid-cols-5"}>
       {locations.map((location) => (
         <article className="rounded-lg border border-white/16 bg-white/12 p-4 shadow-display backdrop-blur" key={location.id}>
           <div className="flex items-start justify-between gap-3">
