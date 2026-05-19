@@ -49,9 +49,11 @@ export default async function RoomPage({ params }: { params: Promise<{ roomId: s
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-6xl rounded-lg border border-white/16 bg-ink/58 p-5 backdrop-blur">
-          <EventList events={events.slice(0, 8)} large />
-        </div>
+        {events.length ? (
+          <div className="mx-auto w-full max-w-6xl rounded-lg border border-white/16 bg-ink/58 p-5 backdrop-blur">
+            <EventList events={events.slice(0, 8)} large />
+          </div>
+        ) : null}
       </div>
     </DisplayShell>
   );
