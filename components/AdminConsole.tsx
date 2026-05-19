@@ -128,6 +128,7 @@ export function AdminConsole({
               const form = new FormData(event.currentTarget);
               await post("/api/admin/quotes", Object.fromEntries(form));
               event.currentTarget.reset();
+              window.location.reload();
             }}
           >
             <h2 className="flex items-center gap-2 text-2xl font-semibold"><QuoteIcon className="h-5 w-5" />Quotes</h2>

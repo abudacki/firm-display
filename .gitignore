@@ -5,5 +5,7 @@ data/*.sqlite-*
 .env
 backups
 uploads
+!app/uploads/
+!app/uploads/**
 public/uploads/*
 !public/uploads/.gitkeep
